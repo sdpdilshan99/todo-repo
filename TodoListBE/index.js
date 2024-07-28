@@ -27,12 +27,20 @@ app.put("/update/:id", (req, res) => {
         .catch(error => res.json(error))
 })
 
-app.put("/edit/:id", (req, res) => {
-    const {id} = req.params;
-    todoModel.findByIdAndUpdate({_id: id}, )
-        .then(result => res.json(result))
-        .catch(error => res.json(error))
-})
+app.put("/edit/:id", async (req, res) => {
+    const { id } = req.params;
+    const { task, done } = req.body;
+    try {
+        const updatedTodo = await todoModel.findByIdAndUpdate(id, { task, done }, { new: true });
+        if (!updatedTodo) {
+            return res.status(404).json({ error: "Todo not found" });
+        }
+        res.json(updatedTodo);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 app.delete("/delete/:id", (req, res) => {
     const {id} = req.params;
